@@ -25,14 +25,15 @@ func main() {
 
     result, err := svc.ListObjects(input)
     if err != nil {
-        exitErrorf("Unable to list objects %q, %v", err)
+        exitErrorf("Unable to list objects %v", err)
     }
 
     for _, item := range result.Contents {
         key := *item.Key
-        file, err := os.Create(path.Join(dl_path, key))
+        filename := path.Join(dl_path, key)
+        file, err := os.Create(path.Join(filename, key))
         if err != nil {
-            exitErrorf("Unable to open file %q, %v", err)
+            exitErrorf("Unable to open file %q, %v", filename, err)
         }
         get_input := &s3.GetObjectInput{
             Bucket: aws.String(bucket_name),
@@ -41,7 +42,7 @@ func main() {
         fmt.Println("Copying file", key, "into", dl_path)
         numBytes, err := downloader.Download(file, get_input)
         if err != nil {
-            exitErrorf("Unable to download item %q, %v", item, err)
+            exitErrorf("Unable to download item %q, %v", key, err)
         }
         fmt.Println("Success! Bytes downloaded: ", numBytes)
         delete_input := &s3.DeleteObjectInput{
@@ -59,7 +60,7 @@ func main() {
         }
         err = svc.WaitUntilObjectNotExists(check_input)
         if err != nil {
-            exitErrorf("Error occurred while waiting for object %q to be deleted, %v", key)
+            exitErrorf("Error occurred while waiting for object %q to be deleted, %v", key, err)
         }
         fmt.Println("Deleting succeeded!")
     }
