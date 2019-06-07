@@ -2,7 +2,7 @@ package main
 
 import (
     "os"
-    "path"
+    "path/filepath"
     "fmt"
     "github.com/aws/aws-sdk-go/service/s3"
     "github.com/aws/aws-sdk-go/service/s3/s3manager"
@@ -30,8 +30,8 @@ func main() {
 
     for _, item := range result.Contents {
         key := *item.Key
-        filename := path.Join(dl_path, key)
-        file, err := os.Create(path.Join(filename, key))
+        filename := filepath.Join(dl_path, key)
+        file, err := os.Create(filename)
         if err != nil {
             exitErrorf("Unable to open file %q, %v", filename, err)
         }
